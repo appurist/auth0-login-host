@@ -2,7 +2,7 @@ import './App.css';
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect } from 'react';
 
-// This is the place Auth0 redirects to after logout.
+// This is the place Auth0 redirects to after logout (in this case).
 const REDIRECT_PATH = "/go";
 
 function App() {
@@ -18,22 +18,26 @@ function App() {
     }
   }, [isLoading, user]);
 
-  let returnTo = new URLSearchParams(window.location.search).get("deskReturnTo");
-  if (returnTo) {
-    console.log("Recognizing deskReturnTo:", returnTo);
-    if (!returnTo.startsWith("http")) {
-      returnTo = window.location.origin + returnTo;
+  // Check if there's a deskReturnTo parameter in the URL.
+  let deskReturnTo = new URLSearchParams(window.location.search).get("deskReturnTo");
+  if (deskReturnTo) {
+    console.log("Recognizing deskReturnTo:", deskReturnTo);
+    if (!deskReturnTo.startsWith("http")) {
+      deskReturnTo = window.location.origin + deskReturnTo;
     }
-    window.location.assign(returnTo);
+    window.location.assign(deskReturnTo);
     return;
   }
 
   if (!isLoading) {
+    // Check to see if this is a redirect from Auth0 and let it take care of it.
     let state = new URLSearchParams(window.location.search).get("state");
     if (state) {  // state is set by Auth0 after login
+      // Let Auth0 process the state and code parameters.
       handleRedirectCallback().then(data => {
+        // This gives us our appState data.
         const target = data?.appState?.target;
-        console.log(`onRedirectCallback: data =`, JSON.stringify(data, null, 2));
+        // console.log(`onRedirectCallback: data =`, JSON.stringify(data, null, 2));
         if (target) {
           window.location.assign(target);
         }
@@ -47,12 +51,9 @@ function App() {
     }
   }
     
-  //const target = "https://account-dev.coindesk.com/login?deskReturnTo="+window.location.origin + window.location.pathname;
-  // if (window.location.search) {
-  //   target += window.location.search
-  // }
   const doLogin = () => {
     const target = window.location.origin + window.location.pathname;
+    // Store our desired path in the appState 'target' field for the block of code above.
     loginWithRedirect({
       prompt: "select_account",
       appState: { target }
@@ -62,8 +63,8 @@ function App() {
   const doLogout = () => {
     const target = window.location.origin + window.location.pathname;
     const returnTo = window.location.origin + REDIRECT_PATH + "?deskReturnTo=" + target;
+    // Logout but specify a redirect URL with our desired path.
     logout({returnTo});
-    // window.location.assign(target);
   };
 
   // console.log("rendering page");
