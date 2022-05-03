@@ -2,6 +2,9 @@ import './App.css';
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect } from 'react';
 
+// This is the place Auth0 redirects to after logout.
+const REDIRECT_PATH = "/go";
+
 function App() {
   const { isLoading, isAuthenticated, user, loginWithRedirect, handleRedirectCallback, logout } = useAuth0();
 
@@ -58,8 +61,9 @@ function App() {
 
   const doLogout = () => {
     const target = window.location.origin + window.location.pathname;
-    logout();
-    window.location.assign(target);
+    const returnTo = window.location.origin + REDIRECT_PATH + "?deskReturnTo=" + target;
+    logout({returnTo});
+    // window.location.assign(target);
   };
 
   // console.log("rendering page");
