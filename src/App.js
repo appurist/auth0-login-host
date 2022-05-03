@@ -7,12 +7,27 @@ function App() {
 
   useEffect (() => {
     if (!isLoading) {
-      console.log("user is", user ? user : "not logged in");
+      if (user) {
+        console.log(`user is ${user.name}`, user);
+      } else {
+        console.log("user is not logged in");
+      }
     }
   }, [isLoading, user]);
 
+  let returnTo = new URLSearchParams(window.location.search).get("deskReturnTo");
+  if (returnTo) {
+    console.log("Recognizing deskReturnTo:", returnTo);
+    if (!returnTo.startsWith("http")) {
+      returnTo = window.location.origin + returnTo;
+    }
+    window.location.assign(returnTo);
+    return;
+  }
+
   if (!isLoading) {
-    if (window.location.search) {
+    let state = new URLSearchParams(window.location.search).get("state");
+    if (state) {  // state is set by Auth0 after login
       handleRedirectCallback().then(data => {
         const target = data?.appState?.target;
         console.log(`onRedirectCallback: data =`, JSON.stringify(data, null, 2));
