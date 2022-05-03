@@ -42,7 +42,9 @@ function App() {
   };
 
   const doLogout = () => {
+    const target = window.location.origin + window.location.pathname;
     logout();
+    window.location.assign(target);
   };
 
   // console.log("rendering page");
